@@ -98,11 +98,12 @@ Precio = 130185.25 + 14394.4·Piescuad − 14394.2·Ofertas + 5685.3·Baños + .
 </table>
 
 <details>
-<summary>Ver más gráficos (boxplot, pairplot, relación área-precio)</summary>
+<summary>Ver más gráficos (boxplots, pairplot, importancia de variables)</summary>
 
-![Boxplot](assets/boxplot_precio.png)
+![Boxplots por variable](assets/boxplots_variables.png)
+![Histogramas por variable](assets/histogramas_variables.png)
 ![Pairplot](assets/pairplot.png)
-![Área vs Precio](assets/relacion_area_precio.png)
+![Importancia de variables](assets/importancia_variables.png)
 
 </details>
 
