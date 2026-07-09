@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estimación del Precio de Viviendas — Lima Metropolitana</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #dfe3da;
+    --bg-panel: #eceee8;
+    --ink: #22241f;
+    --ink-soft: #52564c;
+    --line: #c3c8ba;
+    --clay: #bd5b2a;
+    --clay-deep: #9a4a22;
+    --teal: #2f5d5a;
+    --gold: #c99a3d;
+    --paper: #f4f3ed;
+
+    --display: 'Space Grotesk', sans-serif;
+    --body: 'IBM Plex Sans', sans-serif;
+    --mono: 'IBM Plex Mono', monospace;
+  }
+
+  *{ box-sizing: border-box; margin:0; padding:0; }
+
+  html{ scroll-behavior: smooth; }
+
+  body{
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--body);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a{ color: var(--clay-deep); }
+
+  .wrap{
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  /* ---------- NAV ---------- */
+  nav{
+    position: sticky; top:0; z-index: 50;
+    background: rgba(223,227,218,0.88);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--line);
+  }
+  nav .wrap{
+    display:flex; align-items:center; justify-content:space-between;
+    height: 56px;
+  }
+  .nav-brand{
+    font-family: var(--mono); font-size: 13px; letter-spacing: 0.06em;
+    color: var(--ink-soft);
+  }
+  .nav-links{ display:flex; gap: 24px; list-style:none; }
+  .nav-links a{
+    font-family: var(--mono); font-size: 12.5px; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--ink-soft); text-decoration:none;
+  }
+  .nav-links a:hover{ color: var(--clay-deep); }
+
+  /* ---------- HERO ---------- */
+  header.hero{ padding: 72px 0 40px; }
+  .eyebrow{
+    font-family: var(--mono); font-size: 12.5px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--clay-deep);
+    display:flex; align-items:center; gap: 10px; margin-bottom: 20px;
+  }
+  .eyebrow::before{
+    content:""; width: 22px; height: 1px; background: var(--clay-deep);
+  }
+  h1{
+    font-family: var(--display); font-weight: 700;
+    font-size: clamp(2.2rem, 5vw, 3.6rem);
+    line-height: 1.04; letter-spacing: -0.02em;
+    max-width: 820px;
+  }
+  h1 .accent{ color: var(--clay); }
+  .hero-sub{
+    max-width: 620px; margin-top: 20px; font-size: 17px; color: var(--ink-soft);
+  }
+
+  /* ---------- ESTIMATOR (signature element) ---------- */
+  .estimator{
+    margin-top: 48px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    overflow: hidden;
+  }
+  @media (max-width: 760px){ .estimator{ grid-template-columns: 1fr; } }
+
+  .estimator-controls{ padding: 32px; border-right: 1px solid var(--line); }
+  @media (max-width: 760px){ .estimator-controls{ border-right:none; border-bottom:1px solid var(--line);} }
+
+  .estimator-label{
+    font-family: var(--mono); font-size: 11.5px; text-transform: uppercase;
+    letter-spacing: 0.1em; color: var(--ink-soft); margin-bottom: 6px;
+    display:flex; justify-content: space-between;
+  }
+  .estimator-label b{ color: var(--ink); font-weight: 600; }
+  input[type="range"]{
+    -webkit-appearance: none; width: 100%; height: 3px; background: var(--line);
+    border-radius: 2px; margin-bottom: 22px; cursor: pointer;
+  }
+  input[type="range"]::-webkit-slider-thumb{
+    -webkit-appearance: none; width: 15px; height: 15px; border-radius: 50%;
+    background: var(--clay); border: 2px solid var(--paper); box-shadow: 0 0 0 1px var(--clay);
+  }
+  input[type="range"]::-moz-range-thumb{
+    width: 15px; height: 15px; border-radius: 50%; border:2px solid var(--paper);
+    background: var(--clay); box-shadow: 0 0 0 1px var(--clay);
+  }
+
+  .estimator-result{
+    padding: 32px; background: var(--ink); color: var(--paper);
+    display:flex; flex-direction: column; justify-content:center;
+    position: relative;
+  }
+  .estimator-result .tag{
+    font-family: var(--mono); font-size: 11.5px; text-transform: uppercase;
+    letter-spacing: 0.1em; color: #a9ad9f; margin-bottom: 10px;
+  }
+  .estimator-result .price{
+    font-family: var(--mono); font-weight: 500; font-size: clamp(2.1rem, 5vw, 2.8rem);
+    color: var(--gold); letter-spacing: -0.01em;
+  }
+  .estimator-result .note{
+    margin-top: 14px; font-size: 13px; color: #b9bcae; max-width: 320px;
+  }
+  .estimator-result .r2{
+    position:absolute; bottom: 20px; right: 24px;
+    font-family: var(--mono); font-size: 11px; color: #767a6c;
+  }
+
+  /* ---------- SECTIONS ---------- */
+  section{ padding: 64px 0; border-top: 1px solid var(--line); }
+  .section-head{
+    display:flex; align-items:baseline; gap: 14px; margin-bottom: 32px;
+  }
+  .section-num{ font-family: var(--mono); color: var(--clay-deep); font-size: 13px; }
+  h2{
+    font-family: var(--display); font-weight: 600; font-size: clamp(1.5rem, 3vw, 2rem);
+  }
+
+  .grid-2{ display:grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  @media (max-width: 700px){ .grid-2{ grid-template-columns: 1fr; } }
+
+  .card{
+    background: var(--bg-panel); border: 1px solid var(--line); border-radius: 4px;
+    padding: 24px;
+  }
+  .card h3{
+    font-family: var(--display); font-size: 17px; margin-bottom: 10px; color: var(--teal);
+  }
+  .card p{ font-size: 14.5px; color: var(--ink-soft); }
+
+  /* timeline */
+  .timeline{ display:flex; flex-direction:column; }
+  .tl-item{
+    display:grid; grid-template-columns: 60px 1fr; gap: 20px;
+    padding: 18px 0; border-bottom: 1px solid var(--line);
+  }
+  .tl-item:last-child{ border-bottom:none; }
+  .tl-num{ font-family: var(--mono); color: var(--clay); font-size: 22px; font-weight: 500; }
+  .tl-item h4{ font-family: var(--display); font-size: 16px; margin-bottom: 4px; }
+  .tl-item p{ font-size: 14px; color: var(--ink-soft); }
+
+  /* dataset table */
+  table{ width:100%; border-collapse: collapse; font-size: 14px; }
+  th{
+    text-align:left; font-family: var(--mono); font-size: 11.5px; text-transform: uppercase;
+    letter-spacing: 0.06em; color: var(--ink-soft); padding: 10px 12px; border-bottom: 1px solid var(--ink);
+  }
+  td{ padding: 12px; border-bottom: 1px solid var(--line); }
+  td.mono, th.mono{ font-family: var(--mono); }
+  tr.highlight td{ color: var(--clay-deep); font-weight: 600; }
+
+  /* results gallery */
+  .gallery{ display:grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 700px){ .gallery{ grid-template-columns: 1fr; } }
+  figure{ background: var(--bg-panel); border:1px solid var(--line); border-radius: 4px; overflow:hidden; }
+  figure img{ width:100%; display:block; }
+  figcaption{
+    padding: 12px 16px; font-family: var(--mono); font-size: 12px;
+    color: var(--ink-soft); border-top: 1px solid var(--line);
+  }
+
+  /* model bars (real numbers, CSS only) */
+  .bars{ display:flex; flex-direction:column; gap: 14px; }
+  .bar-row{ display:grid; grid-template-columns: 190px 1fr 70px; align-items:center; gap: 14px; }
+  .bar-row .name{ font-size: 13.5px; }
+  .bar-track{ height: 10px; background: var(--line); border-radius: 2px; overflow:hidden; }
+  .bar-fill{ height: 100%; background: var(--teal); }
+  .bar-row.best .bar-fill{ background: var(--clay); }
+  .bar-row.best .name{ font-weight: 600; color: var(--clay-deep); }
+  .bar-val{ font-family: var(--mono); font-size: 13px; text-align:right; }
+
+  /* equation */
+  .equation{
+    background: var(--ink); color: var(--paper); border-radius: 4px; padding: 28px 32px;
+    font-family: var(--mono); font-size: 15px; overflow-x:auto; white-space: nowrap;
+  }
+  .equation .op{ color: #8b8f7f; }
+  .equation .coef-pos{ color: var(--gold); }
+  .equation .coef-neg{ color: #d98a6b; }
+
+  footer{ padding: 48px 0 64px; border-top: 1px solid var(--line); }
+  footer .wrap{ display:flex; justify-content:space-between; flex-wrap:wrap; gap: 16px; align-items:flex-end; }
+  footer p{ font-size: 13px; color: var(--ink-soft); }
+  footer .authors{ font-family: var(--mono); font-size: 12.5px; color: var(--ink-soft); }
+  .btn{
+    display:inline-block; font-family: var(--mono); font-size: 12.5px; text-transform: uppercase;
+    letter-spacing: 0.06em; text-decoration:none; color: var(--paper); background: var(--clay);
+    padding: 10px 18px; border-radius: 3px;
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <div class="nav-brand">GRUPO 5 · UTP 2026</div>
+    <ul class="nav-links">
+      <li><a href="#estimador">Estimador</a></li>
+      <li><a href="#metodologia">Metodología</a></li>
+      <li><a href="#resultados">Resultados</a></li>
+      <li><a href="#modelo">Modelo</a></li>
+      <li><a href="https://github.com/Abdielkun/t4_machine_learning/blob/main/ProyectoFinal_PrecioViviendas.ipynb">Notebook ↗</a></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Proyecto final · Sistemas Inteligentes y ML</div>
+    <h1>¿Cuánto vale una <span class="accent">vivienda</span> en Lima Metropolitana?</h1>
+    <p class="hero-sub">Un modelo de regresión entrenado sobre 500 registros de mercado estima el precio óptimo de venta a partir del área, cuartos, baños y nivel de competencia local.</p>
+
+    <div class="estimator" id="estimador">
+      <div class="estimator-controls">
+        <div class="estimator-label"><span>Superficie</span><b id="v-area">1,950 sqft</b></div>
+        <input type="range" id="s-area" min="1500" max="2500" step="10" value="1950">
+
+        <div class="estimator-label"><span>Cuartos</span><b id="v-cuartos">3</b></div>
+        <input type="range" id="s-cuartos" min="2" max="5" step="1" value="3">
+
+        <div class="estimator-label"><span>Baños</span><b id="v-banos">2</b></div>
+        <input type="range" id="s-banos" min="2" max="4" step="1" value="2">
+
+        <div class="estimator-label"><span>Ofertas competidoras</span><b id="v-ofertas">3</b></div>
+        <input type="range" id="s-ofertas" min="1" max="5" step="1" value="3">
+      </div>
+      <div class="estimator-result">
+        <div class="tag">Precio estimado (modelo lineal real)</div>
+        <div class="price" id="precio-out">$—</div>
+        <p class="note">Calculado en vivo con los coeficientes del modelo entrenado en el notebook — no es un valor de ejemplo.</p>
+        <div class="r2">R² = 0.472 · RMSE = $15,909</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <div class="section-head"><span class="section-num">01</span><h2>Contexto e importancia comercial</h2></div>
+    <div class="grid-2">
+      <div class="card">
+        <h3>El mercado inmobiliario</h3>
+        <p>La fijación de precios en Lima Metropolitana es un proceso competitivo y volátil. Tradicionalmente se apoya en tasaciones manuales que no escalan y aumentan el riesgo financiero.</p>
+      </div>
+      <div class="card">
+        <h3>La oportunidad de ML</h3>
+        <p>Un algoritmo predictivo cuantifica directamente cómo influye cada característica del inmueble y el nivel de competencia en el precio final, habilitando estrategias ágiles de venta.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="metodologia">
+  <div class="wrap">
+    <div class="section-head"><span class="section-num">02</span><h2>Metodología — CRISP-DM</h2></div>
+    <div class="timeline">
+      <div class="tl-item"><div class="tl-num">01</div><div><h4>Comprensión</h4><p>Definir necesidades del negocio y del comportamiento del mercado limeño.</p></div></div>
+      <div class="tl-item"><div class="tl-num">02</div><div><h4>Datos</h4><p>Análisis exploratorio de 500 registros y auditoría de correlación.</p></div></div>
+      <div class="tl-item"><div class="tl-num">03</div><div><h4>Preparación</h4><p>Normalización (StandardScaler) y creación de variables derivadas.</p></div></div>
+      <div class="tl-item"><div class="tl-num">04</div><div><h4>Modelado</h4><p>Entrenamiento y optimización de 4 algoritmos con GridSearchCV.</p></div></div>
+      <div class="tl-item"><div class="tl-num">05</div><div><h4>Evaluación</h4><p>Validación cruzada e interpretación de métricas R² y MAE.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="section-head"><span class="section-num">03</span><h2>Dataset utilizado</h2></div>
+    <table>
+      <thead><tr><th>Variable</th><th>Descripción</th><th class="mono">Tipo</th><th class="mono">Rango</th></tr></thead>
+      <tbody>
+        <tr><td>Piescuad</td><td>Superficie total en pies cuadrados</td><td class="mono">int64</td><td class="mono">1,500 – 2,500</td></tr>
+        <tr><td>Cuartos</td><td>Número de dormitorios</td><td class="mono">int64</td><td class="mono">2 – 5</td></tr>
+        <tr><td>Baños</td><td>Cantidad de baños completos</td><td class="mono">int64</td><td class="mono">2 – 4</td></tr>
+        <tr><td>Ofertas</td><td>Viviendas competidoras en la zona</td><td class="mono">int64</td><td class="mono">1 – 5</td></tr>
+        <tr class="highlight"><td>Precio (target)</td><td>Precio final de venta</td><td class="mono">int64</td><td class="mono">$69,100 – $199,500</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:16px; font-size:13px; color:var(--ink-soft);">Muestra total: 500 registros (121 reales de transacciones + 379 generados sintéticamente conservando la estructura de covarianza original).</p>
+  </div>
+</section>
+
+<section id="resultados">
+  <div class="wrap">
+    <div class="section-head"><span class="section-num">04</span><h2>Comparación de modelos</h2></div>
+    <div class="bars">
+      <div class="bar-row best"><span class="name">Regresión Lineal</span><div class="bar-track"><div class="bar-fill" style="width:47.2%"></div></div><span class="bar-val">0.472</span></div>
+      <div class="bar-row"><span class="name">XGBoost (tuneado)</span><div class="bar-track"><div class="bar-fill" style="width:42.9%"></div></div><span class="bar-val">0.429</span></div>
+      <div class="bar-row"><span class="name">Random Forest (tuneado)</span><div class="bar-track"><div class="bar-fill" style="width:37.4%"></div></div><span class="bar-val">0.374</span></div>
+      <div class="bar-row"><span class="name">Árbol de Decisión (tuneado)</span><div class="bar-track"><div class="bar-fill" style="width:20.2%"></div></div><span class="bar-val">0.202</span></div>
+    </div>
+    <p style="margin:20px 0 32px; font-size:14px; color:var(--ink-soft);">La Regresión Lineal obtuvo el mejor R² (0.472), menor RMSE ($15,909) y menor MAE ($12,744) en datos de prueba — el problema es predominantemente lineal en este dataset.</p>
+
+    <div class="gallery">
+      <figure><img src="assets/correlacion.png" alt="Matriz de correlación"><figcaption>Matriz de correlación</figcaption></figure>
+      <figure><img src="assets/distribucion_precio.png" alt="Distribución del precio"><figcaption>Distribución del precio</figcaption></figure>
+      <figure><img src="assets/real_vs_predicho.png" alt="Real vs predicho"><figcaption>Precio real vs. predicho</figcaption></figure>
+      <figure><img src="assets/residuos_dispersion.png" alt="Residuos"><figcaption>Dispersión de residuos</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section id="modelo">
+  <div class="wrap">
+    <div class="section-head"><span class="section-num">05</span><h2>Ecuación del modelo ganador</h2></div>
+    <div class="equation">
+Precio <span class="op">=</span> 130,185.25
+  <span class="op">+</span> <span class="coef-pos">14,394.40</span>·Piescuad
+  <span class="op">−</span> <span class="coef-neg">14,394.23</span>·Ofertas
+  <span class="op">+</span> <span class="coef-pos">5,685.29</span>·Baños
+  <span class="op">−</span> <span class="coef-neg">2,742.46</span>·Area_x_Cuarto
+  <span class="op">+</span> <span class="coef-pos">1,192.75</span>·Cuartos
+  <span class="op">−</span> <span class="coef-neg">753.12</span>·Ratio_Banos_Cuartos
+    </div>
+    <p style="margin-top:16px; font-size:13px; color:var(--ink-soft);">Coeficientes sobre variables estandarizadas. El intercepto ($130,185.25) representa el precio de un inmueble con atributos promedio del distrito analizado.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <p class="authors">J. Castro · K. Yarihuaman · X. Camarena · J. Ramos · A. Calderon</p>
+      <p>Universidad Tecnológica del Perú — Grupo 5, 2026</p>
+    </div>
+    <a class="btn" href="https://github.com/Abdielkun/t4_machine_learning">Ver repositorio ↗</a>
+  </div>
+</footer>
+
+<script>
+  // Parámetros reales de estandarización (media, desviación estándar poblacional) del dataset
+  const STATS = {
+    Piescuad:            { mean: 1992.44, std: 201.0394150409317 },
+    Ofertas:              { mean: 2.464,   std: 0.9405870507294899 },
+    Banos:                { mean: 2.422,   std: 0.5098195759285827 },
+    Area_x_Cuarto:        { mean: 693.254, std: 162.68255808851242 },
+    Cuartos:              { mean: 3.024,   std: 0.7262396298743273 },
+    Ratio_Banos_Cuartos:  { mean: 0.8358,  std: 0.22048563571252336 }
+  };
+  // Coeficientes reales del modelo de Regresión Lineal (sobre variables estandarizadas)
+  const COEF = {
+    Piescuad: 14394.40,
+    Ofertas: -14394.23,
+    Banos: 5685.29,
+    Area_x_Cuarto: -2742.46,
+    Cuartos: 1192.75,
+    Ratio_Banos_Cuartos: -753.12
+  };
+  const INTERCEPT = 130185.25;
+
+  function z(value, key){ return (value - STATS[key].mean) / STATS[key].std; }
+
+  function predecir(area, cuartos, banos, ofertas){
+    const areaXCuarto = area / cuartos;
+    const ratioBanosCuartos = banos / cuartos;
+
+    let precio = INTERCEPT;
+    precio += COEF.Piescuad * z(area, 'Piescuad');
+    precio += COEF.Ofertas * z(ofertas, 'Ofertas');
+    precio += COEF.Banos * z(banos, 'Banos');
+    precio += COEF.Area_x_Cuarto * z(areaXCuarto, 'Area_x_Cuarto');
+    precio += COEF.Cuartos * z(cuartos, 'Cuartos');
+    precio += COEF.Ratio_Banos_Cuartos * z(ratioBanosCuartos, 'Ratio_Banos_Cuartos');
+    return precio;
+  }
+
+  const sArea = document.getElementById('s-area');
+  const sCuartos = document.getElementById('s-cuartos');
+  const sBanos = document.getElementById('s-banos');
+  const sOfertas = document.getElementById('s-ofertas');
+
+  function actualizar(){
+    const area = Number(sArea.value);
+    const cuartos = Number(sCuartos.value);
+    const banos = Number(sBanos.value);
+    const ofertas = Number(sOfertas.value);
+
+    document.getElementById('v-area').textContent = area.toLocaleString('en-US') + ' sqft';
+    document.getElementById('v-cuartos').textContent = cuartos;
+    document.getElementById('v-banos').textContent = banos;
+    document.getElementById('v-ofertas').textContent = ofertas;
+
+    const precio = predecir(area, cuartos, banos, ofertas);
+    document.getElementById('precio-out').textContent =
+      '$' + Math.round(precio).toLocaleString('en-US');
+  }
+
+  [sArea, sCuartos, sBanos, sOfertas].forEach(el => el.addEventListener('input', actualizar));
+  actualizar();
+</script>
+
+</body>
+</html>
